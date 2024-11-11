@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>篮球裁判系统</title>
+    <style>
+        :root {
+            font-size: 90%;
+        }
+
+        body {
+            background-color: #4a5568;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            height: 54px;
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .timer-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .phase-text {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .main-timer {
+            font-size: 44px;
+            font-family: monospace;
+            margin-bottom: 20px;
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .control-btn {
+            padding: 8px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .game-area {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+
+        .team-section {
+            width: 270px;
+            padding: 18px;
+            border-radius: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .team-blue {
+            background-color: #0bc5ea;
+        }
+
+        .team-red {
+            background-color: #f56565;
+        }
+
+        .team-name {
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .team-score {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .timer-display {
+            background-color: white;
+            color: black;
+            padding: 8px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .court-area {
+            flex: 1;
+            margin: 0 20px;
+            position: relative;
+            min-width: 800px;
+        }
+
+        .court-image {
+            width: 100%;
+            height: 450px;
+            background-color: #718096;
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            border: 2px solid #4a5568;
+            overflow: hidden;
+        }
+
+        .left-score-controls, .right-score-controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 120px;
+            z-index: 2;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .score-box {
+            background-color: white;
+            border-radius: 5px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .score-box button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .score-minus {
+            background-color: #e53e3e;
+            color: white;
+        }
+
+        .score-plus {
+            background-color: #48bb78;
+            color: white;
+        }
+
+        .score-display {
+            width: 40px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .left-score-controls .score-box {
+            background-color: rgba(255, 99, 99, 0.9);
+        }
+
+        .right-score-controls .score-box {
+            background-color: rgba(99, 179, 255, 0.9);
+        }
+
+        .center-score {
+            margin-top: auto;
+        }
+
+        .history-section {
+            width: 225px;
+            height: 270px;
+            background-color: white;
+            color: black;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: center;
+            padding: 0 10px 5px 10px;
+            border-bottom: 1px solid #ccc;
+            font-weight: bold;
+        }
+
+        .history-header span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .history-content {
+            height: calc(100% - 30px);
+            overflow-y: auto;
+        }
+
+        .history-content div {
+            display: flex;
+            justify-content: center;
+            padding: 5px 10px;
+        }
+
+        .history-content div span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .left-score-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .right-score-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .score-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .score-minus {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .score-display {
+            width: 50px;
+            text-align: center;
+        }
+
+        .score-plus {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .center-score {
+            margin: 0 10px;
+        }
+
+        .score-area {
+            position: absolute;
+            display: flex;
+            gap: 5px;
+        }
+
+        .score-area.two-points-left {
+            left: 15%;
+            top: 60%;
+        }
+
+        .score-area.two-points-right {
+            right: 15%;
+            top: 60%;
+        }
+
+        .score-area.three-points-left {
+            left: 5%;
+            top: 40%;
+        }
+
+        .score-area.three-points-right {
+            right: 5%;
+            top: 40%;
+        }
+
+        .score-area.seven-points-left {
+            left: 25%;
+            top: 50%;
+        }
+
+        .score-area.seven-points-right {
+            right: 25%;
+            top: 50%;
+        }
+
+        .score-box {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            padding: 3px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .score-box button {
+            width: 25px;
+            height: 25px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            background: white;
+        }
+
+        .score-box .score-minus {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .score-box .score-plus {
+            background: #48bb78;
+            color: white;
+        }
+
+        .score-display {
+            width: 25px;
+            text-align: center;
+            font-weight: bold;
+            color: black;
+        }
+
+        .score-area-left .score-box {
+            background: rgba(255, 99, 99, 0.9);
+        }
+
+        .score-area-right .score-box {
+            background: rgba(99, 179, 255, 0.9);
+        }
+
+        .phase-timer {
+            text-align: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            padding: 5px 15px;
+            position: absolute;
+            width: 100%;
+            top: -15px;
+        }
+
+        .court-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .phase-text {
+            position: relative;
+            display: inline-block;
+            padding: 5px 20px;
+            font-size: 24px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .phase-text.red {
+            background-color: rgba(245, 101, 101, 0.8);
+        }
+
+        .phase-text.blue {
+            background-color: rgba(11, 197, 234, 0.8);
+        }
+
+        .phase-text.setup {
+            background-color: rgba(72, 187, 120, 0.8);
+        }
+
+        @keyframes blinkBlue {
+            0% { background-color: #0bc5ea; }
+            50% { background-color: #4fd1ea; }
+            100% { background-color: #0bc5ea; }
+        }
+
+        @keyframes blinkRed {
+            0% { background-color: #f56565; }
+            50% { background-color: #ff8585; }
+            100% { background-color: #f56565; }
+        }
+
+        .team-blue.active {
+            animation: blinkBlue 0.5s infinite;
+        }
+
+        .team-red.active {
+            animation: blinkRed 0.5s infinite;
+        }
+
+        .settings {
+            margin-top: 5px;
+        }
+
+        .team-section .control-btn {
+            margin: 5px 0;
+        }
+
+        .team-section .control-btn:nth-child(4) {
+            margin-bottom: 15px;
+        }
+
+        .foul-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            margin-top: -20px;
+            gap: 20px;
+        }
+
+        .foul-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+
+        .blue-foul {
+            background-color: #0bc5ea;
+        }
+
+        .red-foul {
+            background-color: #f56565;
+        }
+
+        .penalty-trigger {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #48bb78;
+            color: white;
+        }
+
+        .penalty-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .penalty-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .penalty-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .penalty-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .penalty-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+
+        .penalty-btn[data-team="blue"] {
+            background-color: #0bc5ea;
+        }
+
+        .penalty-btn[data-team="red"] {
+            background-color: #f56565;
+        }
+
+        .penalty-btn:hover {
+            opacity: 0.9;
+        }
+
+        .game-area {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="C:\Users\16837\robocon-referee\xueyuan.png" alt="学院logo">
+        </div>
+        <div class="settings">
+            <button class="control-btn" style="background-color: #e53e3e; color: white;">强制重启</button>
+            <button class="control-btn">设置</button>
+        </div>
+    </div>
+
+    <div class="timer-section">
+        <div class="phase-text">准备</div>
+        <div class="main-timer">00:10.000</div>
+        <div class="control-buttons">
+            <button class="control-btn" style="background-color: #718096;">下一个&gt;&gt;</button>
+            <button class="control-btn" style="background-color: #48bb78;">开始</button>
+            <button class="control-btn" style="background-color: #f6ad55;">暂停</button>
+            <button class="control-btn" style="background-color: #e53e3e;">重置</button>
+        </div>
+    </div>
+
+    <div class="game-area">
+        <div class="team-section team-blue">
+            <div class="team-name">Blue</div>
+            <div class="team-score">0</div>
+            <div class="timer-display">20.00</div>
+            <button class="control-btn">下一个</button>
+            <button class="control-btn">现在开始</button>
+            <div class="history-section">
+                <div class="history-header">
+                    <span>行为</span>
+                    <span>时间</span>
+                </div>
+                <div class="history-content"></div>
+            </div>
+        </div>
+
+        <div class="court-area">
+            <div class="phase-timer"></div>
+            <div class="court-container">
+                <div class="court-image" style="background: url('GameField.png') center center no-repeat; background-size: contain;">
+                    <!-- 左侧（红队）得分区域 -->
+                    <!-- 篮筐7分 -->
+                    <div class="score-area score-area-left" style="left: 15%; top: 45%;">
+                        <div class="score-box">
+                            <button class="score-minus">-</button>
+                            <div class="score-display" data-points="7">7</div>
+                            <button class="score-plus">+</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 两分区域 -->
+                    <div class="score-area score-area-left" style="left: 25%; top: 30%;">
+                        <div class="score-box">
+                            <button class="score-minus">-</button>
+                            <div class="score-display" data-points="2">2</div>
+                            <button class="score-plus">+</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 三分区域 -->
+                    <div class="score-area score-area-left" style="left: 35%; top: 15%;">
+                        <div class="score-box">
+                            <button class="score-minus">-</button>
+                            <div class="score-display" data-points="3">3</div>
+                            <button class="score-plus">+</button>
+                        </div>
+                    </div>
+
+                    <!-- 右侧（蓝队）得分区域 -->
+                    <!-- 篮筐7分 -->
+                    <div class="score-area score-area-right" style="right: 15%; top: 45%;">
+                        <div class="score-box">
+                            <button class="score-minus">-</button>
+                            <div class="score-display" data-points="7">7</div>
+                            <button class="score-plus">+</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 两分区域 -->
+                    <div class="score-area score-area-right" style="right: 25%; top: 30%;">
+                        <div class="score-box">
+                            <button class="score-minus">-</button>
+                            <div class="score-display" data-points="2">2</div>
+                            <button class="score-plus">+</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 三分区域 -->
+                    <div class="score-area score-area-right" style="right: 35%; top: 15%;">
+                        <div class="score-box">
+                            <button class="score-minus">-</button>
+                            <div class="score-display" data-points="3">3</div>
+                            <button class="score-plus">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-section team-red">
+            <div class="team-name">Red</div>
+            <div class="team-score">0</div>
+            <div class="timer-display">20.00</div>
+            <button class="control-btn">下一个</button>
+            <button class="control-btn">现在开始</button>
+            <div class="history-section">
+                <div class="history-header">
+                    <span>行为</span>
+                    <span>时间</span>
+                </div>
+                <div class="history-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="foul-area">
+        <button class="foul-btn blue-foul">蓝方犯规</button>
+        <button class="penalty-trigger">罚球得分</button>
+        <button class="foul-btn red-foul">红方犯规</button>
+    </div>
+
+    <div class="penalty-modal" style="display: none;">
+        <div class="penalty-content">
+            <div class="penalty-buttons">
+                <div class="penalty-group">
+                    <button class="penalty-btn" data-team="blue" data-points="2">蓝队2分</button>
+                    <button class="penalty-btn" data-team="blue" data-points="3">蓝队3分</button>
+                    <button class="penalty-btn" data-team="blue" data-points="7">蓝队7分</button>
+                </div>
+                <div class="penalty-group">
+                    <button class="penalty-btn" data-team="red" data-points="2">红队2分</button>
+                    <button class="penalty-btn" data-team="red" data-points="3">红队3分</button>
+                    <button class="penalty-btn" data-team="red" data-points="7">红队7分</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <audio id="roundStartSound" src="start.mp3"></audio>
+    <audio id="countdown3Sound" src="3.mp3"></audio>
+    <audio id="countdown2Sound" src="2.mp3"></audio>
+    <audio id="countdown1Sound" src="1.mp3"></audio>
+    <audio id="countdown0Sound" src="0.mp3"></audio>
+</body>
+</html> 
