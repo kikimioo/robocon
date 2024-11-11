@@ -168,13 +168,19 @@ class RefereeSystem {
         });
         
         blueStartButton.addEventListener('click', () => {
-            // 在比赛阶段或占有阶段，直接开始蓝队回合
             if (this.currentPhase === 'playing' || this.currentPhase === 'possession') {
+                // 如果当前不是蓝队回合，则重置计时器
+                const needReset = this.currentPossession !== 'blue';
+                
                 this.currentPhase = 'playing';
                 this.currentPossession = 'blue';
                 this.nextPossession = null;  // 清除预设的下一回合
-                this.shotClock = 20;
-                this.roundStartTime = Date.now();
+                
+                // 如果是从其他队伍切换过来，重置计时器
+                if (needReset) {
+                    this.shotClock = 20;
+                    this.roundStartTime = Date.now();
+                }
                 
                 // 如果游戏暂停，则重新开始
                 if (!this.isRunning) {
@@ -202,15 +208,21 @@ class RefereeSystem {
         });
         
         redStartButton.addEventListener('click', () => {
-            // 在比赛阶段或占有阶段，直接开始红队回合
             if (this.currentPhase === 'playing' || this.currentPhase === 'possession') {
+                // 如果当前不是红队回合，则重置计时器
+                const needReset = this.currentPossession !== 'red';
+                
                 this.currentPhase = 'playing';
                 this.currentPossession = 'red';
                 this.nextPossession = null;  // 清除预设的下一回合
-                this.shotClock = 20;
-                this.roundStartTime = Date.now();
                 
-                // 如果游戏暂，则重新开始
+                // 如果是从其他队伍切换过来，重置计时器
+                if (needReset) {
+                    this.shotClock = 20;
+                    this.roundStartTime = Date.now();
+                }
+                
+                // 如果游戏暂停，则重新开始
                 if (!this.isRunning) {
                     this.isRunning = true;
                     this.last_update = Date.now();
@@ -309,7 +321,7 @@ class RefereeSystem {
         nameSection.innerHTML = `
             <h3 style="color: black;">队伍名称</h3>
             <div style="margin: 10px 0;">
-                <label style="color: black;">蓝队名称：</label>
+                <label style="color: black;">蓝名称：</label>
                 <input type="text" id="blueTeamName" value="${this.teamNames.blue}">
             </div>
             <div style="margin: 10px 0;">
@@ -515,7 +527,7 @@ class RefereeSystem {
         this.possessionTime = 5;
         
         // 更新显示当前回合
-        const possessionText = this.currentPossession === 'red' ? '红队回合' : '蓝队回合';
+        const possessionText = this.currentPossession === 'red' ? '红队回合' : '蓝队���合';
         document.querySelector('.phase-text').textContent = possessionText;
     }
 
@@ -596,7 +608,7 @@ class RefereeSystem {
     }
 
     updateDisplay() {
-        // 更新主计时器显示（准备时间/比赛时��）
+        // 更新主计时器显示（准备时间/比赛时）
         let mainDisplayTime;
         let phaseText;
 
@@ -733,7 +745,7 @@ class RefereeSystem {
         }
     }
 
-    // 修改强制重启��法
+    // 修改强制重启法
     forceRestart() {
         // 停止所有计时器
         this.isRunning = false;
