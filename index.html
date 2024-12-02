@@ -525,6 +525,50 @@
         .game-area {
             margin-bottom: 0;
         }
+
+        .foul-type-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .foul-type-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .foul-type-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .foul-type-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+
+        .foul-type-btn.collision {
+            background-color: #e53e3e;
+        }
+
+        .foul-type-btn.out {
+            background-color: #718096;
+        }
     </style>
 </head>
 <body>
@@ -663,6 +707,15 @@
                     <button class="penalty-btn" data-team="red" data-points="3">红队3分</button>
                     <button class="penalty-btn" data-team="red" data-points="7">红队7分</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="foul-type-modal" style="display: none;">
+        <div class="foul-type-content">
+            <div class="foul-type-buttons">
+                <button class="foul-type-btn collision">碰撞犯规</button>
+                <button class="foul-type-btn out">出界犯规</button>
             </div>
         </div>
     </div>

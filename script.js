@@ -62,6 +62,8 @@ class RefereeSystem {
             blue: 0,
             red: 0
         };
+
+        this.currentFoulTeam = null; // 记录当前选择犯规的队伍
     }
 
     bindControls() {
@@ -236,45 +238,44 @@ class RefereeSystem {
         // 修改犯规按钮事件绑定
         const blueFoulBtn = document.querySelector('.blue-foul');
         const redFoulBtn = document.querySelector('.red-foul');
-        const penaltyTrigger = document.querySelector('.penalty-trigger');
-        const penaltyModal = document.querySelector('.penalty-modal');
+        const foulTypeModal = document.querySelector('.foul-type-modal');
 
         if (blueFoulBtn) {
             blueFoulBtn.addEventListener('click', () => {
-                this.recordFoul('blue');
+                // 只要在比赛进行时（playing阶段）就可以记录犯规
+                if (this.currentPhase === 'playing') {
+                    this.currentFoulTeam = 'blue';
+                    foulTypeModal.style.display = 'flex';
+                }
             });
         }
 
         if (redFoulBtn) {
             redFoulBtn.addEventListener('click', () => {
-                this.recordFoul('red');
-            });
-        }
-
-        if (penaltyTrigger) {
-            penaltyTrigger.addEventListener('click', () => {
-                penaltyModal.style.display = 'flex';
-            });
-        }
-
-        // 点击模态框背景关闭
-        if (penaltyModal) {
-            penaltyModal.addEventListener('click', (e) => {
-                if (e.target === penaltyModal) {
-                    penaltyModal.style.display = 'none';
+                // 只要在比赛进行时（playing阶段）就可以记录犯规
+                if (this.currentPhase === 'playing') {
+                    this.currentFoulTeam = 'red';
+                    foulTypeModal.style.display = 'flex';
                 }
             });
-
-            // 罚球按钮点击事件
-            penaltyModal.querySelectorAll('.penalty-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const team = btn.getAttribute('data-team');
-                    const points = parseInt(btn.getAttribute('data-points'));
-                    this.addPenaltyScore(team, points);
-                    penaltyModal.style.display = 'none';
-                });
-            });
         }
+
+        // 添加犯规类型按钮事件绑定
+        const foulTypeButtons = document.querySelectorAll('.foul-type-btn');
+        foulTypeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.classList.contains('collision') ? 'collision' : 'out';
+                this.recordFoul(this.currentFoulTeam, type);
+                foulTypeModal.style.display = 'none';
+            });
+        });
+
+        // 点击弹窗背景关闭弹窗
+        foulTypeModal.addEventListener('click', (e) => {
+            if (e.target === foulTypeModal) {
+                foulTypeModal.style.display = 'none';
+            }
+        });
     }
 
     showSettingsDialog() {
@@ -527,7 +528,7 @@ class RefereeSystem {
         this.possessionTime = 5;
         
         // 更新显示当前回合
-        const possessionText = this.currentPossession === 'red' ? '红队回合' : '蓝队���合';
+        const possessionText = this.currentPossession === 'red' ? '红队回合' : '蓝队合';
         document.querySelector('.phase-text').textContent = possessionText;
     }
 
@@ -634,7 +635,7 @@ class RefereeSystem {
         const phaseTimerElement = document.querySelector('.phase-timer');
         phaseTimerElement.textContent = `占有时间 ${this.formatTime(this.currentPhase === 'possession' ? this.possessionTime : 5.000)}`;
 
-        // 移除按钮状态控制，使按钮始终可用
+        // 移��按钮状态控��，使按钮始终可用
         const blueButtons = document.querySelectorAll('.team-blue .control-btn');
         const redButtons = document.querySelectorAll('.team-red .control-btn');
         
@@ -692,6 +693,30 @@ class RefereeSystem {
                 blueSection.classList.add('active');
             } else if (this.nextPossession === 'red') {
                 redSection.classList.add('active');
+            }
+        }
+
+        // 更新犯规按钮状态
+        const blueFoulBtn = document.querySelector('.blue-foul');
+        const redFoulBtn = document.querySelector('.red-foul');
+
+        if (blueFoulBtn) {
+            if (this.currentPhase === 'playing') {  // 只要在比赛进行时就可用
+                blueFoulBtn.style.opacity = '1';
+                blueFoulBtn.style.cursor = 'pointer';
+            } else {
+                blueFoulBtn.style.opacity = '0.5';
+                blueFoulBtn.style.cursor = 'not-allowed';
+            }
+        }
+
+        if (redFoulBtn) {
+            if (this.currentPhase === 'playing') {  // 只要在比赛进行时就可用
+                redFoulBtn.style.opacity = '1';
+                redFoulBtn.style.cursor = 'pointer';
+            } else {
+                redFoulBtn.style.opacity = '0.5';
+                redFoulBtn.style.cursor = 'not-allowed';
             }
         }
     }
@@ -797,10 +822,11 @@ class RefereeSystem {
     }
 
     // 修改记录犯规的方法
-    recordFoul(team) {
+    recordFoul(team, type) {
         // 添加到历史记录
+        const foulType = type === 'collision' ? '碰撞犯规' : '出界犯规';
         const historyEntry = {
-            action: `犯规`,
+            action: foulType,
             time: this.formatTime(this.gameTime)
         };
         
@@ -822,16 +848,16 @@ class RefereeSystem {
 
         // 切换到占有时间阶段
         this.currentPhase = 'possession';
-        this.possessionTime = this.roundPossessionTime;  // 使用10秒的占有时间
+        this.possessionTime = this.roundPossessionTime;
         
         // 如果没有预设下一回合，则切换到另一队
         if (!this.nextPossession) {
-            this.nextPossession = team === 'red' ? 'blue' : 'red';  // 犯规方的对手获得球权
+            this.nextPossession = team === 'red' ? 'blue' : 'red';
         }
         
         this.updateDisplay();
-        this.playSound(this.roundStartSound);  // 播放回合切换音效
-        this.lastPlayedSecond = null;  // 重置倒计时声音状态
+        this.playSound(this.roundStartSound);
+        this.lastPlayedSecond = null;
     }
 
     // 修改 addPenaltyScore 方法
